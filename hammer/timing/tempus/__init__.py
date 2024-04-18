@@ -95,6 +95,16 @@ class Tempus(HammerTimingTool, CadenceTool):
         """ Load design and analysis corners """
         verbose_append = self.verbose_append
 
+        if self.hierarchical_mode.is_nonleaf_hierarchical():
+            # Read ILMs.
+            # verbose_append("flatten_ilm")
+            for ilm in self.get_input_ilms():
+                # Assumes that the ILM was created by Innovus (or at least the file/folder structure).
+                # TODO: support non-Innovus hierarchical (read netlists, etc.)
+                # verbose_append("read_ilm -cell {module} -directory {dir}".format(dir=ilm.dir, module=ilm.module))
+                verbose_append("set_ilm -cell {module} -in_dir {dir}".format(dir=ilm.dir, module=ilm.module))
+
+
         # Read timing libraries and generate timing constraints.
         # TODO: support non-MMMC mode, use standalone SDC instead
         # TODO: read AOCV or SOCV+LVF libraries if available
@@ -159,16 +169,18 @@ class Tempus(HammerTimingTool, CadenceTool):
         else:
             verbose_append("# COMMENT spefs is None")
 
-        if self.hierarchical_mode.is_nonleaf_hierarchical():
-            # Read ILMs.
-            # verbose_append("flatten_ilm")
-            for ilm in self.get_input_ilms():
-                # Assumes that the ILM was created by Innovus (or at least the file/folder structure).
-                # TODO: support non-Innovus hierarchical (read netlists, etc.)
-                verbose_append("read_ilm -cell {module} -directory {dir}".format(dir=ilm.dir, module=ilm.module))
-                # NOT TEMPUS COMMAND verbose_append("set_ilm -cell {module} -in_dir {dir}".format(dir=ilm.dir, module=ilm.module))
+        
+        
 
-        # verbose_append("read_ilm")
+        # if self.hierarchical_mode.is_nonleaf_hierarchical():
+        #     # Read ILMs.
+        #     # verbose_append("flatten_ilm")
+        #     for ilm in self.get_input_ilms():
+        #         # Assumes that the ILM was created by Innovus (or at least the file/folder structure).
+        #         # TODO: support non-Innovus hierarchical (read netlists, etc.)
+        #         verbose_append("read_ilm -cell {module} -directory {dir}".format(dir=ilm.dir, module=ilm.module))
+        #         # verbose_append("set_ilm -cell {module} -in_dir {dir}".format(dir=ilm.dir, module=ilm.module))
+
         # verbose_append("flatten_ilm")
 
         # Read power intent
@@ -184,6 +196,7 @@ class Tempus(HammerTimingTool, CadenceTool):
         else:
             verbose_append("# COMMENT sdf is None")
 
+        verbose_append("read_ilm")
         
         
 
