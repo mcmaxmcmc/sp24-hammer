@@ -125,21 +125,16 @@ class Tempus(HammerTimingTool, CadenceTool):
             top=self.top_module
         ))
 
-        if self.hierarchical_mode.is_nonleaf_hierarchical():
-            # Read ILMs.
-            for ilm in self.get_input_ilms():
-                # Assumes that the ILM was created by Innovus (or at least the file/folder structure).
-                # TODO: support non-Innovus hierarchical (read netlists, etc.)
-                verbose_append("read_ilm -cell {module} -directory {dir}".format(dir=ilm.dir, module=ilm.module))
+        
+        verbose_append("init_design")
 
-        # Read power intent
-        if self.get_setting("vlsi.inputs.power_spec_mode") != "empty":
-            # Setup power settings from cpf/upf
-            for l in self.generate_power_spec_commands():
-                verbose_append(l)
 
+        # verbose_append("extract_parasitics")
+        verbose_append("# COMMENT right before parasitics")
         # Read parasitics
         if self.spefs is not None: # post-P&R
+        # if not self.get_setting("timing.inputs.spefs"):
+            verbose_append("# COMMENT spefs is not None")
             corners = self.get_mmmc_corners()
             if corners:
                 rc_corners = [] # type: List[str]
@@ -161,12 +156,36 @@ class Tempus(HammerTimingTool, CadenceTool):
 
             else:
                 verbose_append("read_spef " + os.path.join(os.getcwd(), self.spefs[0]))
+        else:
+            verbose_append("# COMMENT spefs is None")
+
+        if self.hierarchical_mode.is_nonleaf_hierarchical():
+            # Read ILMs.
+            # verbose_append("flatten_ilm")
+            for ilm in self.get_input_ilms():
+                # Assumes that the ILM was created by Innovus (or at least the file/folder structure).
+                # TODO: support non-Innovus hierarchical (read netlists, etc.)
+                verbose_append("read_ilm -cell {module} -directory {dir}".format(dir=ilm.dir, module=ilm.module))
+                # NOT TEMPUS COMMAND verbose_append("set_ilm -cell {module} -in_dir {dir}".format(dir=ilm.dir, module=ilm.module))
+
+        # verbose_append("read_ilm")
+        # verbose_append("flatten_ilm")
+
+        # Read power intent
+        if self.get_setting("vlsi.inputs.power_spec_mode") != "empty":
+            # Setup power settings from cpf/upf
+            for l in self.generate_power_spec_commands():
+                verbose_append(l)
 
         # Read delay data (optional in Tempus)
         if self.sdf_file is not None:
+            verbose_append("# COMMENT sdf is not None")
             verbose_append("read_sdf " + os.path.join(os.getcwd(), self.sdf_file))
+        else:
+            verbose_append("# COMMENT sdf is None")
 
-        verbose_append("init_design")
+        
+        
 
         # TODO: Optionally read additional DEF or OA physical data
 
@@ -203,6 +222,7 @@ class Tempus(HammerTimingTool, CadenceTool):
 
         # report_timing
         verbose_append("set_db timing_report_timing_header_detail_info extended")
+        
         # Note this reports everything - setup, hold, recovery, etc.
         verbose_append(f"report_timing -retime path_slew_propagation -max_paths {self.max_paths} > timing.rpt")
         verbose_append(f"report_timing -unconstrained -debug unconstrained -max_paths {self.max_paths} > unconstrained.rpt")

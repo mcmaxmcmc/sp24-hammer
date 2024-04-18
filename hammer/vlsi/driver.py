@@ -748,6 +748,9 @@ class HammerDriver:
         timing_tool.submit_command = HammerSubmitCommand.get("timing", self.database)
 
         timing_tool.input_files = self.database.get_setting("timing.inputs.input_files")
+        timing_tool.spefs = self.database.get_setting("timing.inputs.spefs", nullvalue=[])
+        timing_tool.sdf_file = self.database.get_setting("timing.inputs.sdf_file", nullvalue=None)
+
         timing_tool.hierarchical_mode = HierarchicalMode.from_str(
             self.database.get_setting("vlsi.inputs.hierarchical.mode"))
         timing_tool.top_module = self.database.get_setting("timing.inputs.top_module")

@@ -391,7 +391,7 @@ class HammerPlaceAndRouteTool(HammerTool):
 
     def export_config_outputs(self) -> Dict[str, Any]:
         outputs = deepdict(super().export_config_outputs())
-        outputs["par.outputs.output_ilms"] = list(map(lambda s: s.to_setting(), self.output_ilms))
+        outputs["par.outputs.output_ilms"] = list(map(lambda s: s.to_setting(), self.get_input_ilms(full_tree=False)))
         outputs["par.outputs.output_ilms_meta"] = "append"  # to coalesce ILMs for current level of hierarchy
         outputs["vlsi.inputs.ilms"] = list(map(lambda s: s.to_setting(), self.get_input_ilms(full_tree=True)))
         outputs["vlsi.inputs.ilms_meta"] = "append"  # to coalesce ILMs for entire hierarchical tree
